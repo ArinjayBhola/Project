@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  email    String    @unique
+  password String
+  bio      String?
+  blogs    Blog[]    @relation("UserBlogs")
+  comments Comment[] @relation("UserComments")
+  likes    Like[]    @relation("UserLikes")
+}
+
+model Blog {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  content   String
+  dayPosted DateTime  @default(now())
+  category  String?
+  authorId  String    @db.ObjectId
+  author    User      @relation("UserBlogs", fields: [authorId], references: [id])
+  comments  Comment[] @relation("BlogComments")
+  likes     Like[]    @relation("BlogLikes")
+}
+
+model Comment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  content   String
+  createdAt DateTime @default(now())
+  authorId  String   @db.ObjectId
+  blogId    String   @db.ObjectId
+  author    User     @relation("UserComments", fields: [authorId], references: [id])
+  blog      Blog     @relation("BlogComments", fields: [blogId], references: [id])
+}
+
+model Like {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  blogId String @db.ObjectId
+  user   User   @relation("UserLikes", fields: [userId], references: [id])
+  blog   Blog   @relation("BlogLikes", fields: [blogId], references: [id])
+}
