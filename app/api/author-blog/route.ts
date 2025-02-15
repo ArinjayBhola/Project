@@ -2,13 +2,13 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-  const { name } = await req.json();
+  const { id } = await req.json();
 
   try {
     const blogs = await prisma.blog.findMany({
       where: {
         author: {
-          name: name as string,
+          id: id as string,
         },
       },
       include: { author: true },

@@ -1,9 +1,5 @@
-import AboutUs from "./_components/AboutUs";
+import Redirect from "./_components/Redirect";
 
 export default function Home() {
-  return (
-    <div>
-      <AboutUs />
-    </div>
-  );
+  return <Redirect />;
 }
