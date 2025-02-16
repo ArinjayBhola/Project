@@ -2,32 +2,39 @@
 
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
-import { signIn } from "next-auth/react";
+import React, { useState, useEffect } from "react";
+import { signIn, useSession } from "next-auth/react";
 import Quote from "./Quote";
 
 const Signin = () => {
-  const [data, setData] = useState({
+  const [userData, setUserData] = useState({
     email: "",
     password: "",
     name: "",
   });
   const [loading, setLoading] = useState(false);
-
   const router = useRouter();
+  const { data } = useSession();
 
-  const handleSubmitData = async () => {
+  useEffect(() => {
+    if (data?.user) {
+      router.push("/dashboard");
+      return;
+    }
+  }, [data, router]);
+
+  const handleSubmituserData = async () => {
     setLoading(true);
-    if (!data.email || !data.password) {
+    if (!userData.email || !userData.password) {
       setLoading(false);
       return;
     }
     try {
       const res = await signIn("credentials", {
         redirect: false,
-        name: data.name,
-        email: data.email,
-        password: data.password,
+        name: userData.name,
+        email: userData.email,
+        password: userData.password,
       });
       if (res?.error) {
         console.error(res.error);
@@ -59,8 +66,8 @@ const Signin = () => {
                     className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none"
                     placeholder="Your Name"
                     onChange={(e) => {
-                      setData({
-                        ...data,
+                      setUserData({
+                        ...userData,
                         name: e.target.value,
                       });
                     }}
@@ -74,8 +81,8 @@ const Signin = () => {
                     className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none"
                     placeholder="Email"
                     onChange={(e) => {
-                      setData({
-                        ...data,
+                      setUserData({
+                        ...userData,
                         email: e.target.value,
                       });
                     }}
@@ -89,8 +96,8 @@ const Signin = () => {
                     className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none"
                     placeholder="Password"
                     onChange={(e) => {
-                      setData({
-                        ...data,
+                      setUserData({
+                        ...userData,
                         password: e.target.value,
                       });
                     }}
@@ -99,7 +106,7 @@ const Signin = () => {
                 <button
                   type="submit"
                   className="w-full bg-blue-500 hover:bg-blue-600 text-white text-center font-bold py-2 px-4 rounded focus:outline-none flex justify-center items-center"
-                  onClick={handleSubmitData}
+                  onClick={handleSubmituserData}
                   disabled={loading}>
                   {loading ? <Loader2 className="animate-spin" /> : "Sign In"}
                 </button>
