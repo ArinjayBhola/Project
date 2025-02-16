@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Session, User } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import { prisma } from "./prisma";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -7,6 +7,22 @@ export interface CredentialsProps {
   email: string;
   password: string;
   name: string;
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    sub: string;
+    email: string;
+    name: string;
+  }
+}
+
+declare module "next-auth" {
+  interface Session {
+    user: User & {
+      id: string;
+    };
+  }
 }
 
 export const authOptions = {
@@ -56,7 +72,7 @@ export const authOptions = {
   ],
   secret: "secret",
   callbacks: {
-    async session({ session, token }: { session: any; token: JWT }) {
+    async session({ session, token }: { session: Session; token: JWT }) {
       session.user.id = token.sub;
       return session;
     },
