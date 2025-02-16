@@ -1,24 +1,27 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { JWT } from "next-auth/jwt";
 import { prisma } from "./prisma";
 import CredentialsProvider from "next-auth/providers/credentials";
+
+export interface CredentialsProps {
+  email: string;
+  password: string;
+  name: string;
+}
 
 export const authOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        password: {
-          label: "Password",
-          type: "password",
-          placeholder: "Enter your password",
-        },
-        name: { label: "Name", type: "text", placeholder: "John Doe" },
-        email: {
-          label: "Email",
-          type: "email",
-          placeholder: "QpUeh@example.com",
-        },
+        password: { label: "Password", type: "password" },
+        name: { label: "Name", type: "text" },
+        email: { label: "Email", type: "email" },
       },
-      async authorize(credentials: any) {
+      async authorize(credentials: CredentialsProps | undefined) {
+        if (!credentials) {
+          throw new Error("No credentials provided");
+        }
         const existingUser = await prisma.user.findFirst({
           where: {
             email: credentials?.email,
@@ -53,7 +56,7 @@ export const authOptions = {
   ],
   secret: "secret",
   callbacks: {
-    async session({ session, token }: any) {
+    async session({ session, token }: { session: any; token: JWT }) {
       session.user.id = token.sub;
       return session;
     },

@@ -8,22 +8,34 @@ import { FaRegHeart } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
 import Comments from "./Comments";
 import { toast } from "react-toastify";
+import { useSession } from "next-auth/react";
+
+interface BlogData {
+  title: string;
+  content: string;
+  dayPosted: string;
+  authorId: string;
+}
+interface AuthorData {
+  name: string;
+}
+
+interface ExtendedSession {
+  user: {
+    id: string;
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+  };
+}
 
 const Blog = () => {
-  interface BlogData {
-    title: string;
-    content: string;
-    dayPosted: string;
-  }
-
   const [blogData, setBlogData] = useState<BlogData | null>(null);
-  interface AuthorData {
-    name: string;
-  }
 
   const [author, setAuthor] = useState<{ author: AuthorData } | null>(null);
   const [isLiked, setIsLiked] = useState(false);
   const [comment, setComment] = useState<[]>([]);
+  const { data } = useSession() as { data: ExtendedSession | null };
 
   const { blogId } = useParams();
 
@@ -91,11 +103,13 @@ const Blog = () => {
           />
         </div>
         <div>
-          <MdDeleteOutline
-            className="cursor-pointer"
-            onClick={deleteBlog}
-            size={20}
-          />
+          {blogData?.authorId === data?.user?.id && (
+            <MdDeleteOutline
+              className="cursor-pointer"
+              onClick={deleteBlog}
+              size={20}
+            />
+          )}
         </div>
       </div>
       <div className="border-b-2 border-gray-200 my-5"></div>
