@@ -2,7 +2,7 @@
 
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { FaRegComment } from "react-icons/fa";
 import { FaRegHeart } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
@@ -31,7 +31,7 @@ interface ExtendedSession {
 
 const Blog = () => {
   const [blogData, setBlogData] = useState<BlogData | null>(null);
-
+  const router = useRouter();
   const [author, setAuthor] = useState<{ author: AuthorData } | null>(null);
   const [isLiked, setIsLiked] = useState(false);
   const [comment, setComment] = useState<[]>([]);
@@ -69,9 +69,16 @@ const Blog = () => {
 
   const deleteBlog = async () => {
     try {
-      axios.delete("/api/delete-blog", { data: { id: blogId } });
-      window.location.href = "/dashboard";
+      const res = await axios.post("/api/delete-blog", {
+        id: blogId,
+      });
+      if (res.data.error) {
+        throw new Error();
+      }
       toast.success("Blog deleted successfully");
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 1500);
     } catch (error) {
       console.error(error);
       toast.error("Error deleting blog");
